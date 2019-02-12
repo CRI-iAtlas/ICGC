@@ -1,0 +1,75 @@
+library(tidyverse)
+library(synapser)
+library(magrittr)
+
+hugo_translation_id <- "syn11536071"
+fpkm_synapse_id     <- "syn18134933"
+tcga_sample_id      <- "syn18234560"
+upload_id           <- "syn18268611"
+
+
+# functions ------------------
+create_df_from_synapse_id <- function(syn_id, location = NULL, unzip = F, ...){
+    path <- download_from_synapse(syn_id, location)
+    if(unzip) path <- stringr::str_c("zcat < ", path)
+    path %>% 
+        data.table::fread(...) %>% 
+        dplyr::as_tibble() 
+}
+
+download_from_synapse <- function(syn_id, location = NULL){
+    path = synapser::synGet(syn_id, downloadLocation = location)$path
+    return(path)
+}
+
+upload_file_to_synapse <- function(
+    path, synapse_id, 
+    annotation_list = NULL, 
+    activity_obj = NULL, 
+    ret = "entity"){
+    
+    entity <- synapser::File(
+        path = path, 
+        parent = synapse_id, 
+        annotations = annotation_list)
+    entity <- synapser::synStore(entity, activity = activity_obj)
+    if(ret == "entity") return(entity)
+    if(ret == "syn_id") return(entity$properties$id)
+}
+
+# ---------------
+
+synLogin()
+
+tcga_sample_ids <- tcga_sample_id %>% 
+    create_df_from_synapse_id() %>% 
+    use_series(icgc_sample_id)
+
+hugo_translation_df <-  hugo_translation_id %>% 
+    create_df_from_synapse_id() %>% 
+    set_colnames(c("ensembl", "hugo")) %>% 
+    filter(!hugo == "")
+
+fpkm_df <- fpkm_synapse_id %>% 
+    create_df_from_synapse_id(unzip = T) %>% 
+    dplyr::rename(ensembl = feature) %>% 
+    dplyr::mutate(ensembl = str_split(ensembl, "\\.")) %>% 
+    dplyr::mutate(ensembl = map_chr(ensembl, 1)) %>% 
+    dplyr::left_join(hugo_translation_df, by = "ensembl") %>% 
+    dplyr::select(hugo, everything()) %>% 
+    dplyr::select(-ensembl) %>% 
+    dplyr::group_by(hugo) %>%
+    dplyr::summarise_all(sum) %>% 
+    dplyr::ungroup() %>% 
+    .[, !colnames(.) %in% tcga_sample_ids]
+
+write_tsv(fpkm_df, "non_tcga_fpkm.tsv")
+
+activity_obj <- synapser::Activity(
+    name = "convert from ensmbl to hugo, and select only non-tcga samples",
+    used = list(hugo_translation_id, fpkm_synapse_id, tcga_sample_id),
+    executed = "https://github.com/CRI-iAtlas/ICGC/blob/master/format_fpkm_file.R"
+)
+    
+upload_file_to_synapse("non_tcga_fpkm.tsv", upload_id, activity_obj = activity_obj)
+
