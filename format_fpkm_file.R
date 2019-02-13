@@ -55,13 +55,15 @@ fpkm_df <- fpkm_synapse_id %>%
     dplyr::rename(ensembl = feature) %>% 
     dplyr::mutate(ensembl = str_split(ensembl, "\\.")) %>% 
     dplyr::mutate(ensembl = map_chr(ensembl, 1)) %>% 
-    dplyr::left_join(hugo_translation_df, by = "ensembl") %>% 
+    dplyr::inner_join(hugo_translation_df, by = "ensembl") %>% 
     dplyr::select(hugo, everything()) %>% 
     dplyr::select(-ensembl) %>% 
     dplyr::group_by(hugo) %>%
     dplyr::summarise_all(sum) %>% 
     dplyr::ungroup() %>% 
-    .[, !colnames(.) %in% tcga_sample_ids]
+    .[, !colnames(.) %in% tcga_sample_ids] %>% 
+    tidyr::drop_na()
+    
 
 write_tsv(fpkm_df, "non_tcga_fpkm.tsv")
 
