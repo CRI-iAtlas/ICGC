@@ -106,6 +106,6 @@ activity_obj <- synapser::Activity(
     executed = "https://github.com/CRI-iAtlas/ICGC/blob/master/format_fpkm_file.R"
 )
 
-upload_file_to_synapse("non_tcga_fpkm.tsv", "syn18134905", activity_obj = activity_obj)
-upload_file_to_synapse("non_tcga_samples.tsv", "syn18268611", activity_obj = activity_obj)
+upload_file_to_synapse("non_tcga_fpkm.tsv", "syn18268611", activity_obj = activity_obj)
+upload_file_to_synapse("non_tcga_samples.tsv", "syn18233789", activity_obj = activity_obj)
 
