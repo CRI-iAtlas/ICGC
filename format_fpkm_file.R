@@ -96,7 +96,8 @@ fpkm_df <- fpkm_synapse_id %>%
     dplyr::ungroup() %>% 
     tidyr::drop_na()
     
-
+str_c(pcawg_df$icgc_donor_id, collapse = ", ") %>% 
+    writeLines("donors.txt")
 write_tsv(fpkm_df, "non_tcga_fpkm.tsv")
 write_tsv(pcawg_df, "non_tcga_samples.tsv")
 
