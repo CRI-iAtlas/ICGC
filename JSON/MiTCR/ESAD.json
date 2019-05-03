@@ -1,0 +1,24 @@
+{"nested_id_array": [
+  ["syn18497049"],
+  ["syn18497058"],
+  ["syn18497053"],
+  ["syn18497048"],
+  ["syn18497046"],
+  ["syn18497057"],
+  ["syn18497031"]
+  ],
+ "sample_name_array": [
+   "PCAWG.1be40c18-042c-43b0-b663-130a88a257bd.STAR.v1",
+   "PCAWG.7d1f5c61-5f71-406e-a191-7c4d26896662.STAR.v1",
+   "PCAWG.b1878e0b-7ba3-4239-8174-3e0d999598dc.STAR.v1",
+   "PCAWG.ccd5db41-3fab-480f-8dce-702b9b40d829.STAR.v1",
+   "PCAWG.d1863c26-1ff2-4a68-bb0c-db5dca2c5b5c.STAR.v1", 
+   "PCAWG.e95c50f3-b024-47fc-8f28-534c77a725b2.STAR.v1",
+   "PCAWG.ef81bfe0-5096-42fe-865e-dbb9df0c4b88.STAR.v1"
+  ],
+ "synapse_config":
+   {"path": ".synapseConfig",
+    "class": "File"},
+ "destination_id": "syn18638507",
+ "output_file_name": "ESAD.tsv"
+}
