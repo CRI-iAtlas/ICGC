@@ -26,9 +26,10 @@ fastq_df <-
     dplyr::select(-c(ROW_ID, ROW_VERSION, ROW_ETAG)) %>% 
     dplyr::arrange(ICGC_Specimen_ID, pair) %>% 
     dplyr::group_by(Project, ICGC_Specimen_ID) %>% 
-    dplyr::summarise(ids = list(id)) %>% 
-    dplyr::mutate(ids = map(ids, as.list)) %>% 
-    dplyr::ungroup()
+    dplyr::rename(sample_name_array = ICGC_Specimen_ID) %>% 
+    dplyr::summarise(nested_id_array = list(id)) %>% 
+    dplyr::mutate(nested_id_array = map(nested_id_array, as.list)) %>% 
+    dplyr::ungroup() 
 
 fastq_df %>% 
     dplyr::group_split(Project) %>% 
