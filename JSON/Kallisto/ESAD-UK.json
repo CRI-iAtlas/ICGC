@@ -1,0 +1,36 @@
+{
+ "ICGC_Specimen_ID": [ "SP110847", "SP110849", "SP111024", "SP111070", "SP111095", "SP111099", "SP111175" ],
+"ids": [
+ [
+ "syn18497031" 
+],
+[
+ "syn18497049" 
+],
+[
+ "syn18497046" 
+],
+[
+ "syn18497048" 
+],
+[
+ "syn18497053" 
+],
+[
+ "syn18497058" 
+],
+[
+ "syn18497057" 
+] 
+],
+"kallisto_index_file": {
+ "path": "gencode_v24.idx",
+"class": "File" 
+},
+"synapse_config": {
+ "path": ".synapseConfig",
+"class": "File" 
+},
+"destination_id": "syn18636519",
+"output_file_name": "ESAD-UK.tsv" 
+}
