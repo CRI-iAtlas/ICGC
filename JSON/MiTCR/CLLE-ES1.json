@@ -1,0 +1,11 @@
+{
+ "sample_name_array": [ "SP115023", "SP115026", "SP124174", "SP124175", "SP124176", "SP124178", "SP124179", "SP124180" ],
+"p1_fastq_ids": [ "syn18683334", "syn18683145", "syn18675779", "syn18683330", "syn18683144", "syn18683355", "syn18666590", "syn18683327" ],
+"p2_fastq_ids": [ "syn18683333", "syn18683146", "syn18675780", "syn18683329", "syn18683143", "syn18683353", "syn18666591", "syn18683326" ],
+"synapse_config": {
+ "path": ".synapseConfig",
+"class": "File" 
+},
+"destination_id": "syn18638507",
+"output_file_name": "CLLE-ES1.tsv" 
+}

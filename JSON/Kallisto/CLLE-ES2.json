@@ -1,0 +1,15 @@
+{
+ "sample_name_array": [ "SP15230", "SP15236", "SP15248", "SP15254", "SP15290", "SP15302", "SP15308", "SP15314", "SP15326", "SP15332", "SP15344", "SP15380", "SP15398", "SP15428", "SP15440", "SP15446", "SP15452", "SP15470", "SP15506", "SP15512" ],
+"fastq1_ids": [ "syn18675845", "syn18675674", "syn18683303", "syn18675852", "syn18675672", "syn18675678", "syn18684923", "syn18670912", "syn18675843", "syn18666589", "syn18675669", "syn18670968", "syn18670911", "syn18675673", "syn18666586", "syn18683291", "syn18683294", "syn18675774", "syn18675781", "syn18683322" ],
+"fastq2_ids": [ "syn18675844", "syn18675675", "syn18683304", "syn18675850", "syn18675671", "syn18675677", "syn18684920", "syn18670914", "syn18675842", "syn18666587", "syn18675670", "syn18670967", "syn18670910", "syn18675676", "syn18666588", "syn18683292", "syn18683293", "syn18675775", "syn18675783", "syn18683321" ],
+"kallisto_index_file": {
+ "path": "gencode_v24.idx",
+"class": "File" 
+},
+"synapse_config": {
+ "path": ".synapseConfig",
+"class": "File" 
+},
+"destination_id": "syn18636519",
+"output_file_name": "CLLE-ES2.tsv" 
+}

@@ -6,23 +6,20 @@ library(RJSONIO)
 synLogin()
 
 parameter_list <- list(
-    "kallisto_index_file" = list(
-      "path" = "gencode_v24.idx",
-      "class" = "File"),
     "synapse_config" = list(
       "path" = ".synapseConfig",
       "class" = "File"),
-    "destination_id"= "syn18636519"
+    "destination_id"= "syn18638507"
 )
 
-fastq_df <- "SELECT id, pair, Project, ICGC_Specimen_ID FROM syn18689500" %>% 
-    synapser::synTableQuery(includeRowIdAndRowVersion = F) %>% 
-    as.data.frame() %>% 
-    dplyr::as_tibble() 
 
-x <- fastq_df %>% 
+fastq_df <- 
+    synapser::synTableQuery("SELECT id, pair, Project, ICGC_Specimen_ID FROM syn18689500") %>% 
+    as.data.frame() %>% 
+    dplyr::as_tibble() %>% 
+    dplyr::select(-c(ROW_ID, ROW_VERSION, ROW_ETAG)) %>% 
     tidyr::spread(key = pair, value = id) %>% 
-    magrittr::set_colnames(c("Project", "sample_name_array", "fastq1_ids", "fastq2_ids"))
+    magrittr::set_colnames(c("Project", "sample_name_array", "p1_fastq_ids", "p2_fastq_ids"))
 
 df_to_json <- function(dfs, output_file_names, json_file_names){
     dfs %>% 
@@ -48,11 +45,11 @@ df_to_json(list(ESAD_df), "ESAD-UK.tsv" , "../JSON/Kallisto/ESAD-UK.json")
 CLLE_df <- fastq_df %>% 
     dplyr::filter(Project == "CLLE-ES") %>% 
     dplyr::select(-Project)
-CLLE_dfs <-  purrr::map(list(1:20, 21:40, 41:68), ~dplyr::slice(CLLE_df, .x))
+CLLE_dfs <-  purrr::map(list(1:8), ~dplyr::slice(CLLE_df, .x))
 df_to_json(
     CLLE_dfs, 
-    c("CLLE-ES1.tsv", "CLLE-ES2.tsv", "CLLE-ES3.tsv"), 
-    c("../JSON/Kallisto/CLLE-ES1.json", "../JSON/Kallisto/CLLE-ES2.json", "../JSON/Kallisto/CLLE-ES3.json"))
+    c("CLLE-ES1.tsv"), 
+    c("../JSON/MiTCR/CLLE-ES1.json"))
 
 
 
