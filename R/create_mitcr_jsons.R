@@ -5,10 +5,19 @@ library(RJSONIO)
 
 synLogin()
 
-parameter_list <- list(
+paired_parameter_list <- list(
     "synapse_config" = list(
       "path" = ".synapseConfig",
       "class" = "File"),
+    "destination_id"= "syn18638507",
+    "unpaired_sample_name_array" = list(),
+    "unpaired_fastq_id_array" = list()
+)
+
+unpaired_parameter_list <- list(
+    "synapse_config" = list(
+        "path" = ".synapseConfig",
+        "class" = "File"),
     "destination_id"= "syn18638507"
 )
 
@@ -21,35 +30,27 @@ fastq_df <-
     tidyr::spread(key = pair, value = id) %>% 
     magrittr::set_colnames(c("Project", "sample_name_array", "p1_fastq_ids", "p2_fastq_ids"))
 
-df_to_json <- function(dfs, output_file_names, json_file_names){
-    dfs %>% 
-        purrr::map(as.list) %>% 
-        purrr::map(c, parameter_list) %>% 
-        purrr::map2(output_file_names, ~c(.x, list("output_file_name" = .y))) %>% 
-        purrr::map(RJSONIO::toJSON) %>% 
-        purrr::walk2(json_file_names, writeLines)
-}
+paired_df <- fastq_df %>% 
+    dplyr::filter(!is.na(p2_fastq_ids)) %>% 
+    magrittr::set_colnames(c("Project", "paired_sample_name_array", "p1_fastq_id_array", "p2_fastq_id_array"))
 
-#ESAD-UK
+unpaired_df <- fastq_df %>% 
+    dplyr::filter(is.na(p2_fastq_ids)) %>% 
+    dplyr::select(-p2_fastq_ids) %>% 
+    magrittr::set_colnames(c("Project", "unpaired_sample_name_array", "unpaired_fastq_id_array"))
 
-ESAD_df <- fastq_df %>% 
-    dplyr::filter(Project == "ESAD-UK") %>% 
-    dplyr::select(-c(Project, fastq2_ids)) %>% 
-    dplyr::rename(fastq_ids = fastq1_ids)
-                      
-    
-df_to_json(list(ESAD_df), "ESAD-UK.tsv" , "../JSON/Kallisto/ESAD-UK.json")
 
 #CLLE-ES
 
-CLLE_df <- fastq_df %>% 
+CLLE_df <- paired_df %>% 
     dplyr::filter(Project == "CLLE-ES") %>% 
-    dplyr::select(-Project)
-CLLE_dfs <-  purrr::map(list(1:8), ~dplyr::slice(CLLE_df, .x))
-df_to_json(
-    CLLE_dfs, 
-    c("CLLE-ES1.tsv"), 
-    c("../JSON/MiTCR/CLLE-ES1.json"))
+    dplyr::select(-Project) %>% 
+    dplyr::slice(1:15) %>% 
+    as.list() %>% 
+    c(paired_parameter_list) %>% 
+    RJSONIO::toJSON() %>% 
+    writeLines("../JSON/MiTCR/CLLE-ES1.json")
+
 
 
 
