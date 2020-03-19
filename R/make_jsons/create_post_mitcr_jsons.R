@@ -13,8 +13,13 @@ parameter_list <- list(
 mitcr_files_tbl <- "select ICGC_Sample_ID, id, TCR_chain from syn19956391" %>% 
     query_synapse_table()
 
-
+mitcr_stats_file_samples <- "select name from syn20693185" %>% 
+    query_synapse_table() %>% 
+    dplyr::pull(name) %>% 
+    stringr::str_remove_all(".json")
+    
 mitcr_files_tbl %>%
+    dplyr::filter(!ICGC_Sample_ID %in% mitcr_stats_file_samples) %>% 
     tidyr::spread(key = TCR_chain, value = id) %>% 
     dplyr::select(
         sample_names = ICGC_Sample_ID,

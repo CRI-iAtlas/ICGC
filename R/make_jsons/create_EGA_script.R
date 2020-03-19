@@ -19,11 +19,8 @@ uploaded_bam_names2 <- "select name from syn20810012" %>%
     dplyr::pull(name) %>% 
     unique
 
-
-
 bam_df <- "syn18684516" %>%
     synapse_file_to_tbl() %>% 
-    #dplyr::select(`File ID`, Project, `ICGC Donor`, `File Name`, "size" = `Size (bytes)`) %>% 
     dplyr::group_by(`ICGC Donor`) %>%
     dplyr::mutate(donor_count = dplyr::n()) %>% 
     dplyr::ungroup() %>% 
@@ -35,13 +32,18 @@ bam_df <- "syn18684516" %>%
 EGA_MALY_df <- "syn20935231" %>% 
     synapse_file_to_tbl(col_names = F) %>% 
     dplyr::filter(X1 %in% bam_df$`Sample ID`) %>% 
-    dplyr::filter(stringr::str_detect(X3, "STAR.v1.bam.cip$"))
+    dplyr::filter(stringr::str_detect(X3, "STAR.v1.bam.cip$")) %>% 
+    dplyr::pull(X4) %>% 
+    stringr::str_c("pyega3 -c 4 -cf ega.json fetch ", .) %>% 
+    writeLines("EGA_MALY.sh")
 
-bam_df %>%
-    dplyr::arrange(size) %>% 
-    magrittr::use_series(`File ID`) %>% 
-    unique() %>% 
-    stringr::str_c(collapse = ", ")
-    
+EGA_LIRI_df <- "syn20935898" %>% 
+    synapse_file_to_tbl(col_names = F) %>% 
+    dplyr::filter(X1 %in% bam_df$`Sample ID`) %>% 
+    dplyr::filter(stringr::str_detect(X3, "STAR.v1.bam.cip$")) %>% 
+    dplyr::pull(X4) %>% 
+    stringr::str_c("pyega3 -c 4 -cf ega.json fetch ", .) %>% 
+    writeLines("EGA_LIRI.sh")
+
 
 

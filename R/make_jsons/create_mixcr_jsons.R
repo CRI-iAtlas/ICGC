@@ -7,16 +7,21 @@ parameter_list <- list(
     "synapse_config" = list(
         "path" = ".synapseConfig",
         "class" = "File"),
-    "destination_id" = "syn18638507"
+    "destination_id" = "syn20692730"
 )
 
-uploaded_samples <- "select name from syn19956391" %>% 
-    query_synapse_table() %>%  
-    tidyr::separate(name, sep = "_", into = c("sample", "chain"), extra = "drop") %>% 
-    dplyr::mutate(exists = "yes") %>% 
-    tidyr::spread(key = "chain", value = "exists") %>% 
-    tidyr::drop_na() %>% 
-    magrittr::use_series(sample)
+get_synapse_entity_size <- function(id){
+    file <- synapser::synGet(id, downloadFile = F)
+    file$get('fileSize')
+}
+
+uploaded_samples <- 
+    "select name from syn20697851" %>%
+    query_synapse_table() %>% 
+    dplyr::pull(name) %>% 
+    stringr::str_split("\\.") %>% 
+    purrr::map_chr(1) %>% 
+    unique
 
 bam_df <- "syn18684516" %>%
     synapse_file_to_tbl() %>%  
@@ -34,37 +39,49 @@ fastq_df <- "SELECT id, pair, Project, ICGC_Specimen_ID, createdOn FROM syn18689
     tidyr::spread(key = pair, value = id) %>% 
     magrittr::set_colnames(c("Project", "sample_names", "time", "p1_fastq_ids", "p2_fastq_ids")) %>% 
     dplyr::filter(!sample_names %in% uploaded_samples) %>% 
-    dplyr::left_join(bam_df) 
+    dplyr::left_join(bam_df) %>% 
+    dplyr::arrange(bam_size) 
 
 
 paired_df <- fastq_df %>% 
-    dplyr::filter(!is.na(p2_fastq_ids))
+    dplyr::filter(!is.na(p2_fastq_ids)) %>% 
+    dplyr::mutate(
+        size1 = purrr::map_dbl(p1_fastq_ids, get_synapse_entity_size),
+        size2 = purrr::map_dbl(p2_fastq_ids, get_synapse_entity_size)
+    )
 
+paired_df %>% 
+    dplyr::group_by(Project) %>% 
+    dplyr::summarise(
+        count = dplyr::n(),
+        size = sum(size1) + sum(size2)
+    ) %>%
+    dplyr::arrange(desc(size))
 
-
-
-
-fastq_df %>% 
+# unpaired
+unpaired_df <- fastq_df %>% 
     dplyr::filter(is.na(p2_fastq_ids)) %>% 
-    dplyr::select(-p2_fastq_ids) %>% 
+    dplyr::select(-c(p2_fastq_ids, time, bam_size)) %>% 
     dplyr::rename(fastq_ids = p1_fastq_ids) %>% 
-    dplyr::select(-c(Project, bam_size, time)) %>%
-    as.list() %>% 
+    as.list() %>%
     c(parameter_list) %>%
     RJSONIO::toJSON() %>%
     writeLines("unpaired.json")
 
 
-
+# paired
 paired_df %>%
-    dplyr::arrange(desc(time)) %>% 
-    dplyr::mutate(cum_size = cumsum(bam_size)) %>%
-    dplyr::filter(cum_size < 1.0e11) %>%
-    dplyr::select(-c(Project, bam_size, cum_size, time)) %>%
+    dplyr::mutate(cum_size = cumsum(size1) + cumsum(size2)) %>%
+    dplyr::filter(cum_size < 2.0e11) %>%
+    dplyr::select(p1_fastq_ids, p2_fastq_ids, sample_names) %>%
     as.list() %>%
     c(parameter_list) %>%
     RJSONIO::toJSON() %>%
-    writeLines("mitcr.json")
+    writeLines("mixcr.json")
+
+
+
+
 
 
 

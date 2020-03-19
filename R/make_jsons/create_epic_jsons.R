@@ -7,20 +7,20 @@ parameter_list <- list(
     "synapse_config" = list(
         "path" = "/home/aelamb/.synapseConfig",
         "class" = "File"),
-    "destination_id" = "syn20574581"
+    "destination_id" = "syn20583464"
 )
 
 kallisto_files_tbl <- "select  id, name, ICGC_Specimen_ID from syn19955373" %>% 
     query_synapse_table()
 
-mcpcounter_file_samples <- 
-    "SELECT ICGC_Specimen_ID from syn20583414 where method = 'mcpcounter'" %>% 
+epic_file_samples <- 
+    "SELECT ICGC_Specimen_ID from syn20583414 where method = 'epic'" %>% 
     query_synapse_table() %>% 
     dplyr::pull(ICGC_Specimen_ID)
-
+    
 
 kallisto_files_tbl %>% 
-    dplyr::filter(!ICGC_Specimen_ID %in% mcpcounter_file_samples) %>% 
+    dplyr::filter(!ICGC_Specimen_ID %in% epic_file_samples) %>% 
     tidyr::drop_na() %>% 
     dplyr::select(
         sample_names = ICGC_Specimen_ID,
@@ -30,7 +30,7 @@ kallisto_files_tbl %>%
     as.list() %>%
     c(parameter_list) %>%
     RJSONIO::toJSON() %>%
-    writeLines("mcpcounter.json")
+    writeLines("epic.json")
 
 
 

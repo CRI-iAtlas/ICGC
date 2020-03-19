@@ -20,32 +20,28 @@ bam_df <- "syn18684516" %>%
         "Project"
     ))
 
-result_df <- "SELECT * from syn18689500" %>% 
+result_df <- "SELECT * from syn20697851" %>% 
     query_synapse_table() 
 
 annotations_df <- result_df %>% 
-    dplyr::filter(is.na(Project)) %>% 
-    dplyr::select(id, name) %>% 
-    magrittr::set_colnames(c("entity", "FASTQ")) %>% 
-    dplyr::mutate(pair = stringr::str_match(
-        FASTQ, "_p([12]).fastq.gz")[,2]) %>% 
-    dplyr::mutate(BAM = stringr::str_replace_all(
-        FASTQ, "_p[12].fastq.gz", ".bam")) %>% 
+    dplyr::filter(is.na(Project)) %>%
+    dplyr::select(entity = id, mixcr_file = name) %>% 
+    tidyr::separate(
+        mixcr_file, 
+        sep = "\\.",
+        into = c("ICGC_Specimen_ID", "x", "Chain"), 
+        extra = "drop"
+    ) %>% 
     dplyr::left_join(bam_df) %>% 
-    dplyr::select(-c(FASTQ, BAM)) %>% 
-    tidyr::nest(annotations = c(
-            pair,
-            ICGC_Donor_ID,
-            ICGC_Specimen_ID,
-            ICGC_Sample_ID,
-            Project
-    ))
+    dplyr::select(-c(BAM, x)) %>% 
+    tidyr::nest(
+        -entity,
+        .key = "annotations")
 
 if(nrow(annotations_df) > 0){
-    print("Annotating fastq")
+    print("Annotating mixcr")
     purrr::pmap(annotations_df, synapser::synSetAnnotations)
 }
-
 
 
     

@@ -70,7 +70,7 @@ fastq_df %>%
     as.list() %>%
     c(parameter_list) %>%
     RJSONIO::toJSON() %>%
-    writeLines("kallisto1.json")
+    writeLines("kallisto.json")
 
 
 
