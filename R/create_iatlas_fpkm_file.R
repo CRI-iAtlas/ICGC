@@ -52,7 +52,7 @@ activity_obj <- synapser::Activity(
     used = list(hugo_translation_id, fpkm_synapse_id, iatlas_sample_id),
     executed = paste0(
         "https://github.com/CRI-iAtlas/ICGC/blob/",
-        "7d4532d0510d36dc2720120c8a96d215c8dd510e/",
+        "bf8f628cab977a668f84ea73d22149e5c797a5b2/",
         "R/create_iatlas_fpkm_file.R"
     )
 )
